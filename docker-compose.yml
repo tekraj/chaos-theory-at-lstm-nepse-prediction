@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  mongodb-service:
+    image: mongo:latest
+    environment:
+      MONGODB_URL: mongodb-service
+      MONGO_INITDB_DATABASE: nepse
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root@123
+    ports:
+      - 27018:27017
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - nepse-network
+    command: mongod --quiet --logpath /dev/null
+
+  
+
+  data-pipeline-service:
+    container_name: data_pipeline_service
+    image: data_pipeline_service:1.0.0
+    build:
+      context: .
+      dockerfile: ./dockers/Dockerfile.pipeline
+    ports:
+      - 6060:6060
+    volumes:
+      - nepse-data:/app/data
+    env_file:
+      - .env
+    networks:
+      - nepse-network
+    restart: unless-stopped
+
+
+networks:
+  nepse-network:
+    driver: bridge
+volumes:
+  nepse-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/db
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mongodb-data
+  

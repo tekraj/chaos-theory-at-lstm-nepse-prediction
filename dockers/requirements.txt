@@ -1,0 +1,6 @@
+Flask
+Flask-Cors
+nltk
+numpy
+tensorflow
+Werkzeug
